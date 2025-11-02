@@ -18,9 +18,15 @@ const checkMoneyInput = (money) => {
   if (money % 1000 !== 0)
     throw new Error("[ERROR] Input Error: Money Needs to be Divided by 1000");
 };
+const getLottoNumbers = (lottoCount) => {
+  return Array.from({ length: lottoCount }, () =>
+    MissionUtils.Random.pickUniqueNumbersInRange(1, 45, 6)
+  );
+};
 class App {
   async run() {
     const lottoCount = await getLottoCount();
+    const lottoNumbers = getLottoNumbers(lottoCount);
   }
 }
 
