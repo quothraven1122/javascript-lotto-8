@@ -1,5 +1,12 @@
 import { Console, MissionUtils } from "@woowacourse/mission-utils";
 
+const LottoRank = [
+  { rank: 5, match: 3, prize: 5000, count: 0 },
+  { rank: 4, match: 4, prize: 50000, count: 0 },
+  { rank: 3, match: 5, prize: 1500000, count: 0 },
+  { rank: 2, match: 5, bonus: true, prize: 30000000, count: 0 },
+  { rank: 1, match: 6, prize: 2000000000, count: 0 },
+];
 const getLottoCount = async () => {
   while (true) {
     const money = await Console.readLineAsync("구입금액을 입력해 주세요.\n");
@@ -80,19 +87,24 @@ const checkBonusNumber = (num, winningNumbers) => {
 };
 const getWinCount = (lottoNumbers, winningNumbers, bonusNumber) => {
   //[5등, 4등, 3등, 2등, 1등]
-  const winCount = Array(5).fill(0);
   lottoNumbers.forEach((lottoPaper) => {
     const matchCount = lottoPaper.filter((num) =>
       winningNumbers.includes(num)
     ).length;
-    if (matchCount === 6) winCount[4]++;
+    if (matchCount === 6) LottoRank[4].count++;
     else if (matchCount === 5 && lottoPaper.includes(bonusNumber))
-      winCount[3]++;
-    else if (matchCount === 5) winCount[2]++;
-    else if (matchCount === 4) winCount[1]++;
-    else if (matchCount === 3) winCount[0]++;
+      LottoRank[3].count++;
+    else if (matchCount === 5) LottoRank[2].count++;
+    else if (matchCount === 4) LottoRank[1].count++;
+    else if (matchCount === 3) LottoRank[0].count++;
   });
-  return winCount;
+};
+const calculateReturn = (moneyUsed) => {
+  let moneyEarned = 0;
+  LottoRank.forEach((rank) => {
+    moneyEarned += rank.prize * rank.count;
+  });
+  return parseFloat(((moneyEarned / moneyUsed) * 100).toFixed(2));
 };
 class App {
   async run() {
@@ -105,8 +117,26 @@ class App {
     const winningNumbers = await getWinningNumbers();
     const bonusNumber = await getBonusNumber(winningNumbers);
 
-    const winCount = getWinCount(lottoNumbers, winningNumbers, bonusNumber);
-    Console.print(winCount);
+    getWinCount(lottoNumbers, winningNumbers, bonusNumber);
+
+    Console.print("\n당첨 통계\n---");
+    LottoRank.forEach((win) => {
+      if (win.bonus)
+        Console.print(
+          `${
+            win.match
+          }개 일치, 보너스 볼 일치 (${win.prize.toLocaleString()}원) - ${
+            win.count
+          }개`
+        );
+      else
+        Console.print(
+          `${win.match}개 일치 (${win.prize.toLocaleString()}원) - ${
+            win.count
+          }개`
+        );
+    });
+    Console.print(`총 수익률은 ${calculateReturn(lottoCount * 1000)}%입니다.`);
   }
 }
 
