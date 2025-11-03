@@ -31,7 +31,7 @@ export const printLottoCount = (lottoCount) => {
   Console.print(`\n${lottoCount}개를 구매했습니다.`);
 };
 export const printLottoNumbers = (lottoNumbers) => {
-  lottoNumbers.forEach((lottoPaper) => Console.print(lottoPaper));
+  lottoNumbers.forEach((lottoPaper) => lottoPaper.print());
 };
 export const getWinningNumbers = async () => {
   while (true) {

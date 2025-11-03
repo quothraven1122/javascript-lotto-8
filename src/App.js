@@ -1,4 +1,3 @@
-import { MissionUtils } from "@woowacourse/mission-utils";
 import {
   getLottoCount,
   printLottoCount,
@@ -7,6 +6,7 @@ import {
   getBonusNumber,
   printWinStats,
 } from "./io.js";
+import { getLottoNumbers, getWinCount, calculateReturn } from "./utils.js";
 
 const LottoRank = [
   { rank: 5, match: 3, prize: 5000, count: 0 },
@@ -16,47 +16,25 @@ const LottoRank = [
   { rank: 1, match: 6, prize: 2000000000, count: 0 },
 ];
 
-const getLottoNumbers = (lottoCount) => {
-  return Array.from({ length: lottoCount }, () =>
-    MissionUtils.Random.pickUniqueNumbersInRange(1, 45, 6).sort((a, b) => a - b)
-  );
-};
-
-const getWinCount = (lottoNumbers, winningNumbers, bonusNumber) => {
-  //[5등, 4등, 3등, 2등, 1등]
-  lottoNumbers.forEach((lottoPaper) => {
-    const matchCount = lottoPaper.filter((num) =>
-      winningNumbers.includes(num)
-    ).length;
-    if (matchCount === 6) LottoRank[4].count++;
-    else if (matchCount === 5 && lottoPaper.includes(bonusNumber))
-      LottoRank[3].count++;
-    else if (matchCount === 5) LottoRank[2].count++;
-    else if (matchCount === 4) LottoRank[1].count++;
-    else if (matchCount === 3) LottoRank[0].count++;
-  });
-};
-const calculateReturn = (moneyUsed) => {
-  let moneyEarned = 0;
-  LottoRank.forEach((rank) => {
-    moneyEarned += rank.prize * rank.count;
-  });
-  return parseFloat(((moneyEarned / moneyUsed) * 100).toFixed(2));
-};
 class App {
   async run() {
+    //로또 종이 개수 구하기
     const lottoCount = await getLottoCount();
     printLottoCount(lottoCount);
 
+    //로또 종이들 랜덤 숫자 6개로 채워주기
     const lottoNumbers = getLottoNumbers(lottoCount);
     printLottoNumbers(lottoNumbers);
 
+    //우승 숫자들 입력
     const winningNumbers = await getWinningNumbers();
     const bonusNumber = await getBonusNumber(winningNumbers);
 
-    getWinCount(lottoNumbers, winningNumbers, bonusNumber);
+    //얼마나 이겼는지 계산하기
+    getWinCount(lottoNumbers, winningNumbers, bonusNumber, LottoRank);
 
-    printWinStats(LottoRank, calculateReturn(lottoCount * 1000));
+    //수익 계산
+    printWinStats(LottoRank, calculateReturn(lottoCount * 1000, LottoRank));
   }
 }
 
