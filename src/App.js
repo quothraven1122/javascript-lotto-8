@@ -23,7 +23,7 @@ const checkMoneyInput = (num) => {
 };
 const getLottoNumbers = (lottoCount) => {
   return Array.from({ length: lottoCount }, () =>
-    MissionUtils.Random.pickUniqueNumbersInRange(1, 45, 6)
+    MissionUtils.Random.pickUniqueNumbersInRange(1, 45, 6).sort((a, b) => a - b)
   );
 };
 const getWinningNumbers = async () => {
@@ -36,7 +36,7 @@ const getWinningNumbers = async () => {
       Console.print(e.message);
       continue;
     }
-    return winningNumbers;
+    return winningNumbers.map(Number);
   }
 };
 const checkWinningNumbers = (winningNumbers) => {
@@ -63,7 +63,7 @@ const getBonusNumber = async () => {
       Console.print(e.message);
       continue;
     }
-    return bonusNumber;
+    return Number(bonusNumber);
   }
 };
 const checkBonusNumber = (num) => {
@@ -75,13 +75,35 @@ const checkBonusNumber = (num) => {
   if (bonusNumber > 45 || bonusNumber < 1)
     throw new Error("[ERROR] Input Error: Number Out of Bounds");
 };
-const getWinRate = (lottoNumbers, winningNumbers, bonusNumber) => {};
+const getWinCount = (lottoNumbers, winningNumbers, bonusNumber) => {
+  //[5등, 4등, 3등, 2등, 1등]
+  const winCount = Array(5).fill(0);
+  lottoNumbers.forEach((lottoPaper) => {
+    const matchCount = lottoPaper.filter((num) =>
+      winningNumbers.includes(num)
+    ).length;
+    if (matchCount === 6) winCount[4]++;
+    else if (matchCount === 5 && lottoPaper.includes(bonusNumber))
+      winCount[3]++;
+    else if (matchCount === 5) winCount[2]++;
+    else if (matchCount === 4) winCount[1]++;
+    else if (matchCount === 3) winCount[0]++;
+  });
+  return winCount;
+};
 class App {
   async run() {
     const lottoCount = await getLottoCount();
+    Console.print(`\n${lottoCount}개를 구매했습니다.`);
+
     const lottoNumbers = getLottoNumbers(lottoCount);
+    lottoNumbers.forEach((lottoPaper) => Console.print(lottoPaper));
+
     const winningNumbers = await getWinningNumbers();
     const bonusNumber = await getBonusNumber();
+
+    const winCount = getWinCount(lottoNumbers, winningNumbers, bonusNumber);
+    Console.print(winCount);
   }
 }
 
