@@ -29,36 +29,37 @@ const getLottoNumbers = (lottoCount) => {
 const getWinningNumbers = async () => {
   while (true) {
     const input = await Console.readLineAsync("\n당첨 번호를 입력해 주세요.\n");
-    const winningNumbers = input.split(",");
+    const winningNumbers = input.split(",").map(Number);
     try {
       checkWinningNumbers(winningNumbers);
     } catch (e) {
       Console.print(e.message);
       continue;
     }
-    return winningNumbers.map(Number);
+    return winningNumbers;
   }
 };
 const checkWinningNumbers = (winningNumbers) => {
   if (winningNumbers.length !== 6)
     throw new Error("[ERROR] Input Error: Must be 6 numbers");
-  winningNumbers.forEach((i) => {
-    const num = Number(i);
+  winningNumbers.forEach((num) => {
     if (isNaN(num))
       throw new Error("[ERROR] Input Error: Number must be a number");
     if (!Number.isInteger(num))
       throw new Error("[ERROR] Input Error: Number must be an integer");
-    else if (num > 45 || num < 1)
-      throw new Error("[ERROR] Input Error: Number Out of Bounds");
+    if (num > 45 || num < 1)
+      throw new Error("[ERROR] Input Error: Number out of bounds");
   });
+  if (new Set(winningNumbers).size !== winningNumbers.length)
+    throw new Error("[ERROR] Input Error: Duplicate numbers are not allowed");
 };
-const getBonusNumber = async () => {
+const getBonusNumber = async (winningNumbers) => {
   while (true) {
     const bonusNumber = await Console.readLineAsync(
       "\n보너스 번호를 입력해 주세요.\n"
     );
     try {
-      checkBonusNumber(bonusNumber);
+      checkBonusNumber(bonusNumber, winningNumbers);
     } catch (e) {
       Console.print(e.message);
       continue;
@@ -66,14 +67,16 @@ const getBonusNumber = async () => {
     return Number(bonusNumber);
   }
 };
-const checkBonusNumber = (num) => {
+const checkBonusNumber = (num, winningNumbers) => {
   const bonusNumber = Number(num);
   if (isNaN(bonusNumber))
     throw new Error("[ERROR] Input Error: Number must be a number");
   if (!Number.isInteger(bonusNumber))
-    throw new Error("[ERROR] Input Error: Number Needs to be Int");
+    throw new Error("[ERROR] Input Error: Number must be an integer");
   if (bonusNumber > 45 || bonusNumber < 1)
-    throw new Error("[ERROR] Input Error: Number Out of Bounds");
+    throw new Error("[ERROR] Input Error: Number out of bounds");
+  if (winningNumbers.includes(bonusNumber))
+    throw new Error("[ERROR] Input Error: Duplicate numbers are not allowed");
 };
 const getWinCount = (lottoNumbers, winningNumbers, bonusNumber) => {
   //[5등, 4등, 3등, 2등, 1등]
@@ -100,7 +103,7 @@ class App {
     lottoNumbers.forEach((lottoPaper) => Console.print(lottoPaper));
 
     const winningNumbers = await getWinningNumbers();
-    const bonusNumber = await getBonusNumber();
+    const bonusNumber = await getBonusNumber(winningNumbers);
 
     const winCount = getWinCount(lottoNumbers, winningNumbers, bonusNumber);
     Console.print(winCount);
