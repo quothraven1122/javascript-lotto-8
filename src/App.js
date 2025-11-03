@@ -40,6 +40,8 @@ const getWinningNumbers = async () => {
   }
 };
 const checkWinningNumbers = (winningNumbers) => {
+  if (winningNumbers.length !== 6)
+    throw new Error("[ERROR] Input Error: Must be 6 numbers");
   winningNumbers.forEach((i) => {
     const num = Number(i);
     if (isNaN(num))
@@ -73,6 +75,7 @@ const checkBonusNumber = (num) => {
   if (bonusNumber > 45 || bonusNumber < 1)
     throw new Error("[ERROR] Input Error: Number Out of Bounds");
 };
+const getWinRate = (lottoNumbers, winningNumbers, bonusNumber) => {};
 class App {
   async run() {
     const lottoCount = await getLottoCount();
