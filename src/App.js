@@ -6,7 +6,7 @@ import {
   getBonusNumber,
   printWinStats,
 } from "./io.js";
-import { getLottoNumbers, getWinCount, calculateReturn } from "./utils.js";
+import { getLottoNumbers, getWinCount, calculateReturn } from "./util.js";
 
 const LottoRank = [
   { rank: 5, match: 3, prize: 5000, count: 0 },
