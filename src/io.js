@@ -5,16 +5,26 @@ import {
   checkBonusNumber,
 } from "./error.js";
 
+//공통 io
+const tryCatch = async (prompt, validator, processInput = (x) => x) => {
+  const input = await Console.readLineAsync(prompt);
+  try {
+    validator(input);
+    return processInput(input);
+  } catch (e) {
+    Console.print(e.message);
+  }
+};
+
+//특수 io
 export const getLottoCount = async () => {
   while (true) {
-    const money = await Console.readLineAsync("구입금액을 입력해 주세요.\n");
-    try {
-      checkMoneyInput(money);
-    } catch (e) {
-      Console.print(e.message);
-      continue;
-    }
-    return money / 1000;
+    const money = await tryCatch(
+      "구입금액을 입력해 주세요.\n",
+      checkMoneyInput,
+      (m) => m / 1000
+    );
+    if (money !== undefined) return money;
   }
 };
 export const printLottoCount = (lottoCount) => {
@@ -25,29 +35,22 @@ export const printLottoNumbers = (lottoNumbers) => {
 };
 export const getWinningNumbers = async () => {
   while (true) {
-    const input = await Console.readLineAsync("\n당첨 번호를 입력해 주세요.\n");
-    const winningNumbers = input.split(",").map(Number);
-    try {
-      checkWinningNumbers(winningNumbers);
-    } catch (e) {
-      Console.print(e.message);
-      continue;
-    }
-    return winningNumbers;
+    const numbers = await tryCatch(
+      "\n당첨 번호를 입력해 주세요.\n",
+      (input) => checkWinningNumbers(input.split(",").map(Number)),
+      (input) => input.split(",").map(Number)
+    );
+    if (numbers) return numbers;
   }
 };
 export const getBonusNumber = async (winningNumbers) => {
   while (true) {
-    const bonusNumber = await Console.readLineAsync(
-      "\n보너스 번호를 입력해 주세요.\n"
+    const bonus = await tryCatch(
+      "\n보너스 번호를 입력해 주세요.\n",
+      (b) => checkBonusNumber(b, winningNumbers),
+      Number
     );
-    try {
-      checkBonusNumber(bonusNumber, winningNumbers);
-    } catch (e) {
-      Console.print(e.message);
-      continue;
-    }
-    return Number(bonusNumber);
+    if (bonus) return bonus;
   }
 };
 export const printWinStats = (lottoRank, returnRate) => {
